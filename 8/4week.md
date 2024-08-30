@@ -126,14 +126,64 @@ Box Loss는 L1 loss와 GIoU를 활용한다.
     - Expanding path = 원본 이미지의 해상도를 출력 (decoder). 2x2 convolutions. 각 level마다 channel을 2배로 줄임.
         - 각 해상도 레벨에 맞는 contracting path feature을 가지고 와서 cat을 함.
 
-### [CV 이론] 과제 1 & 2
-#### [라이브러리]
-- timm (PyTorch Image Models)
-    - PyTorch 기반의 이미지 모델 라이브러리
-    - 다양한 사전 학습된 비전 모델들을 제공 (torchivision에서 제공하는 pretrained model보다 더 많은 모델을 제공한다고 함!)
-    - 설치 : pip install timm
-- pytorch-lightning
-    - PyTorch에 대한 High-level 인터페이스를 제공하는 오픈소스 Python 라이브러리
-    - 설치 : pip install pytorch-lightning
 
-#### [TIL]
+### [CV 이론] 과제 1 : Understanding Vision Transformers
+- timm (PyTorch Image Models)
+   - PyTorch 기반의 이미지 모델 라이브러리
+   - 다양한 사전 학습된 비전 모델들을 제공 (torchivision에서 제공하는 pretrained model보다 더 많은 모델을 제공한다고 함!)
+   - 설치 : pip install timm
+- Position embedding 시각화 (cosine similarity)
+
+   <img src="https://github.com/user-attachments/assets/73e2e335-274c-470e-9d0b-7fd00ad725c1" width="300"/>
+   - 각 패치마다의 Position embedding을 시각화한 것. 색이 노랑색에 가까울수록 attention이 높음. 
+   - 각 패치 위치에 대한 attention이 높은 것을 볼 수 있음.
+- Attention Matrix 시각화 (3번째 멀티 해드 예시)
+   - `attention_matrix = torch.matmul(q, kT)`
+
+      <img src="https://github.com/user-attachments/assets/ea6cd5c9-829d-491d-bdf3-afe12197ec90" width="300"/>
+   - 100 ~ 125에서 attention이 강한 것을 볼 수 있음.
+   - **softmax(q, kT)를 하지 않는 이유**
+      - softmax는 Attention Score를 확률 분포로 변환하여 visualization이 쉽지 않음.
+      - 따라서, softmax Temperature을 설정하여 softmax를 조정할 수 있음.
+      - softmax Temperature
+
+         <img src="https://github.com/user-attachments/assets/5f4d3889-6694-452d-8a18-a0f094e7a8ce" alt="1_p1iKxUJcXDlSEZCpMCwNgg" width="300"/>
+
+         - Temperature가 1일 때,
+
+            <img src="https://github.com/user-attachments/assets/b5cef290-c869-4f1e-bdde-97f238381801" width="300"/>
+         - Temperature가 10일 때,
+
+            <img src="https://github.com/user-attachments/assets/975abb1b-d67a-43f7-8dbb-eabd504aa2f7" width="300"/>
+         - Temperature가 30일 때,
+
+            <img src="https://github.com/user-attachments/assets/975abb1b-d67a-43f7-8dbb-eabd504aa2f7" width="300"/>
+
+### [CV 이론] 과제 1 : Understanding Vision Transformers           
+   - pytorch-lightning
+      - PyTorch에 대한 High-level 인터페이스를 제공하는 오픈소스 Python 라이브러리
+      - 설치 : pip install pytorch-lightning
+
+- logits
+   ```
+   def forward(self, pixel_values):
+        outputs = self.vit(pixel_values=pixel_values)
+        return outputs.logits
+   ```
+   - logits은 소프트맥스(Softmax) 또는 시그모이드(Sigmoid) 함수가 적용되기 전의 원시 점수을 의미함.
+   
+- nn.Module 클래스 / pl.LightningModule 클래스에서의 self
+   ```
+   def common_step(self, batch, batch_idx):
+        pixel_values = batch['pixel_values']
+        labels = batch['labels']
+        logits = self(pixel_values)
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(logits, labels)
+   ```
+   - 여기서 logits = self(pixel_values)는 forward을 호출하여 pixel_values를 처리
+      - self는 인스턴스를 의미하고 이는 pl.LightningModule 혹은 nn.model에 의해 자동으로 forward 메서드가 실행하므로 `self(pixel_values)`는 forward 호출
+
+- `nn.CrossEntropyLoss()`
+   - 위 코드에서 softmax 값이 아닌 logits로 loss를 계산하는 이유
+      - `nn.CrossEntropyLoss()`에 softmax가 들어가 있으므로 softmax의 확률값이 아닌, logits으로 계산
