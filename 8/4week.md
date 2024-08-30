@@ -111,7 +111,7 @@ Box Loss는 L1 loss와 GIoU를 활용한다.
     - Semantic segmentation = 같은 객체가 여러 개라도 구분하지 않음.
     - instance segmentation = 같은 객체라도 구분함.
     - Panoptic segmentation = 배경 부분 등 모든 Pixel을 다 segmentation함 (Semantic + instance)
-![alt text](image.png)
+![Screenshot from 2024-08-29 17-09-34](https://github.com/user-attachments/assets/d899e18e-dd2c-4ec8-865c-094c2fa1317a)
 
 - Fully connected vs. Fully convolutional
     - Fully connected layer : 출력이 고정된 벡터이고, 공간 좌표를 섞음.
@@ -120,5 +120,20 @@ Box Loss는 L1 loss와 GIoU를 활용한다.
     - Fully Convolutional = FC를 사용하지 않고, 오직 Convolutional만 사용한다는 뜻.
     - 임의의 크기의 입력이 들어오더라도 맞는 출력을 만듦.
     - skip connection을 통해 각 층의 정보를 뽑아와서 upsampling하여 해상도를 맞춘 후에, 이를 종합하여 최종 예측을 만듦.
-    ![alt text](image-1.png)
+    ![Screenshot from 2024-08-29 17-18-47](https://github.com/user-attachments/assets/dd5b325c-19c7-4943-a31e-58f84dab89d1)
 - U-Net
+   - contracting path = 이미지 특징 축소 과정 (encoder). 3x3 convolutions. 각 level마다 channel을 2배로 늘림.
+    - Expanding path = 원본 이미지의 해상도를 출력 (decoder). 2x2 convolutions. 각 level마다 channel을 2배로 줄임.
+        - 각 해상도 레벨에 맞는 contracting path feature을 가지고 와서 cat을 함.
+
+### [CV 이론] 과제 1 & 2
+#### [라이브러리]
+- timm (PyTorch Image Models)
+    - PyTorch 기반의 이미지 모델 라이브러리
+    - 다양한 사전 학습된 비전 모델들을 제공 (torchivision에서 제공하는 pretrained model보다 더 많은 모델을 제공한다고 함!)
+    - 설치 : pip install timm
+- pytorch-lightning
+    - PyTorch에 대한 High-level 인터페이스를 제공하는 오픈소스 Python 라이브러리
+    - 설치 : pip install pytorch-lightning
+
+#### [TIL]
