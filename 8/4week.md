@@ -90,6 +90,7 @@ Box Loss는 L1 loss와 GIoU를 활용한다.
 2. Vision Transformers (ViT)
 
    : Apply a standard transformer directly to images
+   <img src="images/ViT.png" alt="alt text" width="400"/>
 
    → Overall architecture
 
