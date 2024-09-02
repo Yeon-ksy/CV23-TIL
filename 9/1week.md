@@ -1,4 +1,4 @@
-# 9월 1week TIL ✏️
+# 9/2~9/9 TIL ✏️
 
 ## 태욱 [[Github](https://github.com/K-ple)]
 - 
