@@ -1,7 +1,11 @@
 # 9/2~9/9 TIL ✏️
 
 ## 태욱 [[Github](https://github.com/K-ple)
+### Multimodal
+- 텍스트, 이미지, 음성, 영상 등 다양한 데이터 양식 (modality)을 함께 처리하는 것을 의미
+
 ### CLIP
+- ViT(Vision Transformer)와 Transformer 언어 모델(Transformer-based language model)을 결합하여 이미지와 텍스트를 모두 처리할 수 있게 만들어놓은 모델
 
 - 
 
