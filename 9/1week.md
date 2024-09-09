@@ -6,8 +6,16 @@
 
 ### CLIP
 - ViT(Vision Transformer)와 Transformer 언어 모델(Transformer-based language model)을 결합하여 이미지와 텍스트를 모두 처리할 수 있게 만들어놓은 모델
+- 즉, Text와 Image의 관계성을 모델링
 
+![taeuk_image1.png](image%2Ftaeuk_image1.png)
+- 4억개 이미지와 해당 이미지에 대한 설명 Text를 pair로 둔 학습데이터셋을 각 인코더(Text,Image)로 임베딩 후 위사진과 같이 pair의 거리에따라 유사도를 계산 함
+
+
+![taeuk_image2.png](image%2Ftaeuk_image2.png)
+- Text의 경우 A photo of a {object}와 같이 단어 형태가 아닌 문장 형태로 인코딩시 성능 향상의 효과를 볼 수 있음
 - 
+
 
 ## 상유 [[Github](https://github.com/dhfpswlqkd)]
 - 
