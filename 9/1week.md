@@ -1,6 +1,8 @@
 # 9/2~9/9 TIL ✏️
 
-## 태욱 [[Github](https://github.com/K-ple)]
+## 태욱 [[Github](https://github.com/K-ple)
+### CLIP
+
 - 
 
 ## 상유 [[Github](https://github.com/dhfpswlqkd)]
