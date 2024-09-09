@@ -24,7 +24,145 @@
 -
 
 ## 윤서 [[Github](https://github.com/myooooon)]
-- 
+ ## [CV 이론] 
+ 4. Segmentation & Detection
+
+
+## Semantic segmentation
+이미지의 각 픽셀의 카테고리를 분류하는 것 (instance는 고려하지 않고 의미적 카테고리만 고려)
+- 적용 분야 : Medical images, Autonomous driving, Computational photography
+
+### 1. Fully Convolutional Networks(FCN)
+
+<img src="https://github.com/user-attachments/assets/5413e4de-4488-4ab6-a350-a4364a493ab0" width=550/>
+
+- semantic segmentation의 첫 end-to-end 구조 모델
+- FCN은 전체 사진의 class를 예측하는 이미지 분류 모델을 튜닝해 픽셀 단위의 class를 예측하도록 학습시키는 Transfer Learning으로 구현한다.
+    - 이미지 분류의 Fully Connected layer는 고정된 차원의 벡터를 출력하며 공간적 정보를 담지 못한다. FC 레이어 대신 **1x1 conv**와 **up-sampling**을 이용해 공간적 정보를 가지며 input과 크기가 같은 classification map을 출력한다.
+        
+- Up-sampling & Transposed convolution
+    
+    Conv layer를 통과하며 pooling이나 stride로 인해 해상도가 낮아진 feature map을 input size와 같아지도록 up-sampling한다.
+    
+    하지만 위치 정보가 손실된 feature map을 그대로 up-sampling하면 디테일한 classification map을 얻을 수 없다. 더 디테일한 정보를 가지고 있는 중간 level feature map을 최종 feature map와 더하는 skip connection 을 통해 이를 보완할 수 있다.   
+
+    ![FCN_result](https://github.com/user-attachments/assets/3882c62e-1006-43ec-9e58-6722ff273f48)
+    ![FCN_skipconnection](https://github.com/user-attachments/assets/2e7661ec-bb9a-4a7f-a7c0-12334f65b2c8)
+    
+    - FCN-32s
+        
+        원본 이미지 크기를 (H, W)라 하면, (H/32, W/32) 크기의 pool5를 32배 up-sampling
+        
+    - FCN-16s
+        
+        pool5를 2배 up-sampling하여 (H/16, W/16) 크기의 pool4와 더한 다음(=A), 16배 upsampling
+        
+    - FCN-8s
+        
+        FCN-16s의 map A를 2배 up-sampling하여 (H/8, W/8) 크기의 pool3과 더한 다음, 8배 up-sampling
+        
+
+### 2. U-Net
+
+<img src="https://github.com/user-attachments/assets/8de12164-e03c-4f88-ba36-d4f652461906" width=550>
+
+- U-Net은 down-sampling하는 contracting path와 up-sampling하는 expanding path의 대칭 구조로 이루어져 있다. Contracting path의 feature map을 expanding path의 feature map에 더해주는 skip connection을 통해 localized 정보를 전달한다.
+- Contracting path
+    - 3 x 3 conv을 두 번 적용 → 2 x 2 max pooling으로 down-sampling
+    - down-sampling할 때 채널의 수가 2배로 늘어난다.
+- Expanding path
+    - 2 x 2 up-conv으로 up-sampling → 대응하는 contracting path의 feature map 더하기 → 3 x 3 conv을 두 번 적용
+    - up-sampling할 때 채널의 수가 1/2로 줄어든다.
+
+## Object detection
+
+Classification + Box localization
+
+- 적용 분야 : Autonomous driving, Optical Character Recognition(OCR)
+
+### 1. Two-stage detector : R-CNN
+
+![R_CNN](https://github.com/user-attachments/assets/8785085b-b288-4d65-bbee-436d3484b17a)
+
+- 객체가 있을만한 영역을 제안해주는 region proposal과 객체를 분류하는 classification 단계를 순차적으로 진행하는 2-stage object detection 모델
+- R-CNN은 사람이 만든 region proposal 알고리즘(Selective search)을 사용하여 bounding box를 추출한다. 이를 고정된 사이즈로 변형시키고(warping) 미리 학습된 CNN에 넣어 feature를 추출한다. 이 feature를 SVM object classifier에 넣어 객체를 분류하고, Box offset regressor에 넣어 bounding box offset을 조정한다.
+
+### 2. One-stage detector : YOLO
+
+<img src="https://github.com/user-attachments/assets/47f6c3a8-6f88-4e37-9966-9a35b6f471b2" width=550>
+
+- 이미지를 한번만 보고 region proposal과 classification을 동시에 수행하는 1-stage object detection 모델로 속도가 빨라 실시간 객체 탐지에 유용하다.
+- 이미지를 S x S grid로 나누고 grid cell마다 B개의 bounding box, 각 box에 대한 confidence(bounding box 선 굵기), C개의 conditional class probability를 예측한다.  전체 예측 결과는 S x S x (B x 5 + C)크기의 tensor로 인코딩된다(B x 5 + C → bounding box의 x, y, w, h, obj score + class probability). 이때 예측된 bounding box들 중 각 객체에 가장 정확한 하나의 박스를 선택하기 위해 Non-Maximum Suppression(NMS) 알고리즘을 사용한다.
+
+### 3. One-stage detector vs. Two-stage detector
+
+- One-stage (YOLO, RetinaNet…)
+    - No explicit RoI pooling
+    - Class imbalance problem - One-stage는 모든 pixel에 loss를 계산하는데, 객체가 있는 positive anchor box보다 배경 영역에 해당하는 negative anchor box가 더 많아 loss 계산에 어려움이 있다.
+        
+        → focal loss로 개선 (focal loss는 ground truth class일 확률이 높으면 down-weights, 낮으면 over-weights하는 방법)
+        
+- Two-stage(R-CNN, Fast R-CNN, Faster R-CNN…)
+    - Regioin proposal로 제안된 box 영역을 가져와서 고정된 크기에 맞게 조절하는 RoI pooling이 존재한다.
+
+
+## Instance segmentation
+
+semantic segmentation + distinguishing instances (배경은 label을 부여하지 않음)
+
+### 1. Mask R-CNN
+- Faster R-CNN은 RoI pooling을 통해 크기가 줄어든 feature가 RoI를 반영하지 못하는 misalignment 문제가 있다. Mask R-CNN은 RoI pooling 대신 RoI align을 사용해 floating point까지 고려한 더 정교한 모델이다. 또한, 마지막 예측 단계에서 Mask head를 추가해 segmentation mask를 예측한다.
+    - Extensions : DensePose R-CNN, Mesh R-CNN
+
+## Transformer-based methods
+
+### 1. DETR (Detection Transformer)
+
+- End-to-End Object Detection with Transformers(encoder-decoder 구조를 사용)
+- Object detection을 direct set prediction problem으로 만들면서 많은 hand-designed component들을 없앨 수 있게 되었다. 기존 object detection 모델에서 RPN이 같은 객체에 여러 가지 bounding box를 만들 때 최적의 box를 선택해주던 non-maximum suppression도 neural network 안으로 들어온 것이다.
+- Method
+    1. Feature extraction with CNN + position encoding
+    2. Transformer encoder
+        - CNN에서 추출된 feature map이 더 강화된 inceptive field를 고려하도록 만들기 위해 사용된다.
+    3. Transformer decoder
+        - Encoder output과 object queries를 input으로 가진다.
+        - Object queries는 어떤 object가 어디에 있는지를 물어본다.
+        - 출력이 다시 입력으로 나오는 auto-regressive 형태를 사용하지 않고, N개의 query를 병렬적으로 처리해 N개의 feature로 각각 decoding하도록 한다.
+    4. Prediction heads(Feed forward network)
+        - N개의 feature가 FFN을 거쳐 class와 bounding box의 형태로 출력
+        - 예측하는 bounding box의 개수가 실제 object 개수보다 많도록 query를 설정한다.
+        - class label ‘None’은 객체가 없음을 뜻한다.
+    5. Bipartite matching
+        - Loss를 계산하기 위해 예측한 box와 실제 box를 matching
+        - 출력결과가 한번에 순서없이 나오기 때문에 어떤 label과 대응되는지 알 수 없다. 따라서 bounding box prediction set과 ground truth set을 matching하여 학습을 진행한다.
+
+### 2. MaskFormer
+
+<img src="https://github.com/user-attachments/assets/028f7c40-28e8-4812-b6ac-b2aaffde4b72" >
+
+- Mask classification으로 semantic & instance segmentation 두 가지 task를 수행하는 하나의 모델을 구성할 수 있다는 insight에서 시작
+- Pixel-level module
+    - Backbone model이 low-resolution image features을 생성하고 pixel decoder가 image features을 up-sampling하여 per-pixel embedding을 출력한다.
+- Transformer module
+    - Transformer 모델의 decoder 부분으로 image features와 positional embeddings를 합친 값을 input으로 넣어 N개의 per-segment embedding을 출력한다. DETR과 마찬가지로 N개의 query를 병렬적으로 처리한다.
+- Segmentation module
+    - Per-segment embedding이 MLP를 거쳐 각 segment에 대한 classification을 수행한다.
+    - Per-segment embedding이 MLP를 거쳐 mask embedding으로 변환된다. Mask embedding과 per-pixel embedding을 dot product한 후 sigmoid함수를 적용해 binary mask prediction을 수행한다.
+    - Classification loss와 binary mask loss가 DETR처럼 set prediction으로 나오기 때문에 서로 matching하여 학습을 진행한다.
+
+### 3. Uni-DVPS
+
+<img src="https://github.com/user-attachments/assets/9c9d7fa4-f547-42c6-bc52-653b718cb3dc">
+
+- 비디오에서 panoptic segmentation(semantic segmentation + instance segmentation)과 depth prediction을 한번에 수행하는 unified 모델
+- MaskFormer와 유사하게 feature extractor와 pixel decoder, transformer decoder를 가지고 있다.
+- Unified Transformer decoder with unified query
+    - 여러 task를 수행할 수 있는 통합된 query를 사용
+    - Segmentation을 위한 embedding과 depth prediction을 위한 embedding으로 분화된다.
+- Feature gate
+    - Pixel decoder에서 나온 feature map도 feature gate를 거쳐 두 task에 각각 유리한 feature로 decoding된다.
+- Video segmentation을 위해서는 시간에 따른 추적이 필요하다. Uni-DVPS에서는 tracking module을 사용하지 않고 query-based tracking을 사용한다.
+    - 같은 instance는 여러 frame에 걸쳐 비슷한 query feature가 나타나고 다른 instance는 서로 구분되는 query feature가 나타나는 특징이 있다. Frame 간 query matching을 통해 video tracking을 수행한다.
 
 ## 세연 [[Github](https://github.com/Yeon-ksy)] [[Velog](https://velog.io/@yeon-ksy/)]
 
