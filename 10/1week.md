@@ -41,8 +41,8 @@
     - 다양한 크기의 ROI로부터 얻을 target의 Feature 사이즈를 결정함.
     <img src="https://github.com/user-attachments/assets/e853493a-0d39-40c2-bfed-0e8be80676fc" width="300"/>
     
-        - ROI에서 input size에 맞게 Bin을 뽑아내고, 
-	    - 각 Bin에서 Max Pooling 등을 통해 하나의 특징을 뽑아냄.
+- ROI에서 input size에 맞게 Bin을 뽑아내고, 
+    - 각 Bin에서 Max Pooling 등을 통해 하나의 특징을 뽑아냄.
 
 ## Fast R-CNN
 <img src="https://github.com/user-attachments/assets/f111335f-ce5c-4f97-9be1-22fff69ff557" width="500"/>
@@ -60,11 +60,11 @@
     - RPN
     <img src="https://github.com/user-attachments/assets/7cbbb8ea-4347-4681-b222-c5fe67ee2880" width="300"/>
     
-        - feature map의 각 cell마다 다양한 스케일과 비율을 가진 k개의 Anchor box가 존재함.
-        - RPN은 이러한 Anchor Box가 객체를 포함하고 있는지 예측하여 Anchor Box를 미세 조정함.
-        - 이를 위해 각 픽셀 별로 두 개의 Head를 통과함.
-	        - cls layer = k개의 Anchor Box에 객체 유무를 판단
-	        - reg layer = 바운딩 박스의 중심을 얼마나 이동해야 하는지, 가로, 세로는 얼마나 옮겨야 하는지 판단
+- feature map의 각 cell마다 다양한 스케일과 비율을 가진 k개의 Anchor box가 존재함.
+- RPN은 이러한 Anchor Box가 객체를 포함하고 있는지 예측하여 Anchor Box를 미세 조정함.
+- 이를 위해 각 픽셀 별로 두 개의 Head를 통과함.
+	- cls layer = k개의 Anchor Box에 객체 유무를 판단
+	- reg layer = 바운딩 박스의 중심을 얼마나 이동해야 하는지, 가로, 세로는 얼마나 옮겨야 하는지 판단
 - cls prediction으로 각 Anchor Box에 대한 score가 나오는데, 이를 통해 Top N 개의 box를 선택
 - 이렇게 뽑은 ROI들은 겹치는 영역이 무수히 많음. 따라서 NMS (Non-Maximum Suppression)을 사용
     - NMS
