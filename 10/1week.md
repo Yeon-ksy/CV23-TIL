@@ -25,9 +25,11 @@
 
 ## R-CNN
 <img src="https://github.com/user-attachments/assets/62a27b84-ffb0-4c2d-9d66-85806ecc3cf4" width="500"/>
+
 - 입력 이미지가 주어졌을 때, Selective Search를 통해 약 2000개의 ROI를 추출
     - Selective Search : 주어진 이미지의 색깔, 질감, shape 등의 특성을 활용하여 이미지를 작은 영역으로 나눈 다음, 이 영역을 통합해나가는 형식으로 후보 영역을 search함.
     <img src="https://github.com/user-attachments/assets/acefefa4-37cb-4a09-b9c4-97f12dffb3b2" width="300"/>
+    
 - ROI의 사이즈가 다 다르기 때문에 크기를 조절해 모두 동일한 사이즈로 변경
 	- CNN의 FC 레이어의 입력 사이즈가 고정이므로 
 - ROI를 CNN에 넣어 feature를 추출
@@ -38,6 +40,7 @@
 - 이미지를 먼저 CNN에 통과시켜 feature를 얻어 2000개의 region을 뽑고, spatial pyramid pooling을 통해 고정된 사이즈로 변환. 이후 FC 레이어 통과시킴.
     - 다양한 크기의 ROI로부터 얻을 target의 Feature 사이즈를 결정함.
     <img src="https://github.com/user-attachments/assets/e853493a-0d39-40c2-bfed-0e8be80676fc" width="300"/>
+    
         - ROI에서 input size에 맞게 Bin을 뽑아내고, 
 	    - 각 Bin에서 Max Pooling 등을 통해 하나의 특징을 뽑아냄.
 
@@ -56,6 +59,7 @@
 - Selective Search를 제거하고 대신에 RPN (Region Proposal Network)을 도입하여Region Proposal 역시 학습 가능한 형태로 바꿈
     - RPN
     <img src="https://github.com/user-attachments/assets/7cbbb8ea-4347-4681-b222-c5fe67ee2880" width="300"/>
+    
         - feature map의 각 cell마다 다양한 스케일과 비율을 가진 k개의 Anchor box가 존재함.
         - RPN은 이러한 Anchor Box가 객체를 포함하고 있는지 예측하여 Anchor Box를 미세 조정함.
         - 이를 위해 각 픽셀 별로 두 개의 Head를 통과함.
